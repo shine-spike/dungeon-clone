@@ -53,6 +53,10 @@ int main(int, char const**)
     mcsprite.setOrigin(TILE/2, TILE/2);
     mcsprite.setPosition(TILE * 10.5, TILE * 10.5);
     Mob mc(mcsprite);
+    char moves[5000];
+    int move_pos = 0;
+    Clone clones[30];
+    int clone_amount = 0;
     
     // Start the game loop
     while (window.isOpen())
@@ -67,18 +71,26 @@ int main(int, char const**)
             }
 
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
+                moves[move_pos++] = '0';
+                runClones(clones, clone_amount, moves, world);
                 mc.takeAction('0', world);
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
+                moves[move_pos++] = '1';
+                runClones(clones, clone_amount, moves, world);
                 mc.takeAction('1', world);
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
+                moves[move_pos++] = '2';
+                runClones(clones, clone_amount, moves, world);
                 mc.takeAction('2', world);
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
+                moves[move_pos++] = '3';
+                runClones(clones, clone_amount, moves, world);
                 mc.takeAction('3', world);
             }
             
@@ -87,6 +99,12 @@ int main(int, char const**)
                 window.close();
             }
         }
+        
+        if (move_pos == 10){
+            int m[2] {10,10};
+            clones[0] = makeClone(m, &mctexture);
+            clone_amount = 1;
+        }
 
         // Clear screen
         window.clear();
@@ -94,6 +112,10 @@ int main(int, char const**)
         draw(&window, world);
         // Update the window
         window.draw(mc.getSprite());
+        
+        for (int i = 0; i < clone_amount; i++){
+            window.draw(clones[i].getSprite());
+        }
         
         window.display();
     }

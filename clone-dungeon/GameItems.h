@@ -47,6 +47,7 @@ public:
 };
 
 class Mob{
+protected:
     sf::Sprite sprite;
 public:
     Mob (sf::Sprite a) {sprite = a;}
@@ -83,5 +84,14 @@ public:
 };
 void load(Block world[][WORLD_SIZE], std::string world_name, sf::Texture* worldtextures);
 void draw(sf::RenderWindow *window, Block world[][WORLD_SIZE]);
+
+class Clone: public Mob{
+public:
+    int move_pos;
+};
+
+void runClones(Clone clones[], int clone_amount, char moves[], Block world[][WORLD_SIZE]);
+
+Clone makeClone(int pos[], sf::Texture *mctexture);
 
 #endif /* defined(__clone_dungeon__GameItems__) */

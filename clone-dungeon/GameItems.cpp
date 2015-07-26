@@ -69,3 +69,20 @@ void draw(sf::RenderWindow *window, Block world[][WORLD_SIZE]){
         }
     }
 }
+
+void runClones(Clone clones[], int clone_amount, char moves[], Block world[][WORLD_SIZE]){
+    for (int i = 0; i < clone_amount; i++){
+        clones[i].takeAction(moves[clones[i].move_pos++], world);
+    }
+}
+
+Clone makeClone(int pos[], sf::Texture *mctexture){
+    Clone clone;
+    sf::Sprite sprite;
+    sprite.setTexture(*mctexture);
+    sprite.setOrigin(TILE/2, TILE/2);
+    sprite.setPosition(TILE * (pos[0] + 0.5), TILE * (pos[1] + 0.5));
+    clone.setSprite(sprite);
+    clone.move_pos = 0;
+    return clone;
+}

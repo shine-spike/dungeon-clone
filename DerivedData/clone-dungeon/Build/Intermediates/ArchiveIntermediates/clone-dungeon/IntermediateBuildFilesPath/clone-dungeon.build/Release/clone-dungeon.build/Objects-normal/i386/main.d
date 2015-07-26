@@ -86,4 +86,5 @@ dependencies: \
   /Library/Frameworks/SFML.framework/Headers/Graphics/Shader.hpp \
   /Library/Frameworks/SFML.framework/Headers/Graphics/Sprite.hpp \
   /Library/Frameworks/SFML.framework/Headers/Graphics/Text.hpp \
-  /Users/scratch/Hax/Xcode/clone-dungeon/clone-dungeon/ResourcePath.hpp
+  /Users/scratch/Hax/Xcode/clone-dungeon/clone-dungeon/ResourcePath.hpp \
+  /Users/scratch/Hax/Xcode/clone-dungeon/clone-dungeon/GameItems.h
