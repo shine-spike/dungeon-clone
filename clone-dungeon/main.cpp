@@ -24,6 +24,7 @@
 #include "GameItems.h"
 #define WORLD_SIZE 20
 #define TILE 32
+#define CLONE_MAX 30
 
 int main(int, char const**)
 {
@@ -43,20 +44,20 @@ int main(int, char const**)
         return EXIT_FAILURE;
     }
     Block world[WORLD_SIZE][WORLD_SIZE];
-    load(world, "resources/world1.txt", &worldtextures);
-    sf::Texture mctexture;
-    if (!mctexture.loadFromFile(resourcePath() + "resources/mc.png")) {
-        return EXIT_FAILURE;
-    }
+    Special worlds[WORLD_SIZE*WORLD_SIZE];
+    load_bg(world, "resources/world1.txt", &worldtextures);
+    int amount = load_fg(worlds, "resources/world1s.txt", &worldtextures);
     sf::Sprite mcsprite;
-    mcsprite.setTexture(mctexture);
+    mcsprite.setTexture(worldtextures);
+    mcsprite.setTextureRect(sf::IntRect(4*TILE, TILE, TILE, TILE));
     mcsprite.setOrigin(TILE/2, TILE/2);
-    mcsprite.setPosition(TILE * 10.5, TILE * 10.5);
+    mcsprite.setPosition(TILE * 3.5, TILE * 16.5);
     Mob mc(mcsprite);
-    char moves[5000];
+    char moves[15000];
     int move_pos = 0;
-    Clone clones[30];
+    Clone clones[CLONE_MAX];
     int clone_amount = 0;
+    bool action = false;
     
     // Start the game loop
     while (window.isOpen())
@@ -72,26 +73,31 @@ int main(int, char const**)
 
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
                 moves[move_pos++] = '0';
-                runClones(clones, clone_amount, moves, world);
-                mc.takeAction('0', world);
+                runClones(clones, clone_amount, moves, world, worlds, amount, mc);
+                mc.takeAction('0', world, worlds, amount, clones, clone_amount, mc);
+                action = true;
+                
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
                 moves[move_pos++] = '1';
-                runClones(clones, clone_amount, moves, world);
-                mc.takeAction('1', world);
+                runClones(clones, clone_amount, moves, world, worlds, amount, mc);
+                mc.takeAction('1', world, worlds, amount, clones, clone_amount, mc);
+                action = true;
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
                 moves[move_pos++] = '2';
-                runClones(clones, clone_amount, moves, world);
-                mc.takeAction('2', world);
+                runClones(clones, clone_amount, moves, world, worlds, amount, mc);
+                mc.takeAction('2', world, worlds, amount, clones, clone_amount, mc);
+                action = true;
             }
             
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
                 moves[move_pos++] = '3';
-                runClones(clones, clone_amount, moves, world);
-                mc.takeAction('3', world);
+                runClones(clones, clone_amount, moves, world, worlds, amount, mc);
+                mc.takeAction('3', world, worlds, amount, clones, clone_amount, mc);
+                action = true;
             }
             
             // Escape pressed: exit
@@ -100,16 +106,35 @@ int main(int, char const**)
             }
         }
         
-        if (move_pos == 10){
-            int m[2] {10,10};
-            clones[0] = makeClone(m, &mctexture);
-            clone_amount = 1;
+        if (action){
+            int nclone_amount = clone_amount;
+            for (int i = 0; i < amount; i++){
+                bool raa = false;
+                if (worlds[i].getPosition() == mc.getPosition()){
+                    raa = true;
+                }
+                for (int x = 0; x < clone_amount; x++){
+                    if (worlds[i].getPosition() == clones[x].getPosition()){
+                        raa = true;
+                    }
+                }
+                if (raa){
+                    worlds[i].steppedOn(worlds, amount, clones, &nclone_amount, &worldtextures);
+                    worlds[i].setSteppedOn(true);
+                }
+                else if (!raa && worlds[i].getSteppedOn()){
+                    worlds[i].steppedOff(worlds, amount, clones, &nclone_amount, &worldtextures);
+                    worlds[i].setSteppedOn(false);
+                }
+            }
+            clone_amount = nclone_amount;
+            action = false;
         }
 
         // Clear screen
         window.clear();
         
-        draw(&window, world);
+        draw(&window, world, worlds, amount);
         // Update the window
         window.draw(mc.getSprite());
         
